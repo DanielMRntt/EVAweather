@@ -1,0 +1,43 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// datasource db {
+//   provider = "mysql"
+//   url      = env("MYSQL_URL")
+// }
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
+}
+
+model Ciudad {
+  id          Int         @id @default(autoincrement())
+  nombre      String
+  latitud     Float
+  longitud    Float
+  previsiones Prevision[]
+}
+
+model CondicionMeteorologica {
+  id          Int         @id @default(autoincrement())
+  tipo        String
+  detalle     String
+  previsiones Prevision[]
+}
+
+model Prevision {
+  id                Int      @id @default(autoincrement())
+  fecha             DateTime
+  temperaturaMinima Float
+  temperaturaMaxima Float
+  ciudadId          Int
+  condicionId       Int
+
+  ciudad    Ciudad                 @relation(fields: [ciudadId], references: [id])
+  condicion CondicionMeteorologica @relation(fields: [condicionId], references: [id])
+
+  @@unique([ciudadId, fecha])
+}
