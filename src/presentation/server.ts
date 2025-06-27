@@ -2,6 +2,8 @@ import express, { Router } from 'express';
 import path from 'path';
 import { FillCitiesDatabase } from '../domain/use-cases/geocode/fill-database-cities';
 import { GeocodeService } from './geocode/geocode.service';
+import { FillPronosticosDatabase } from '../domain/use-cases/geocode/fill-database-pronosticos';
+import { PronosticoService } from './geocode/pronostico.service';
 
 
 export interface Options {
@@ -11,6 +13,7 @@ export interface Options {
 }
 
 const geocodeService = new GeocodeService();
+const pronoticoService = new PronosticoService();
 const cities = [ "Barcelona", "Roma", "Andorra la Vella", "París"];
 
 
@@ -47,6 +50,7 @@ export class Server {
             console.log(`Server running on Port ${this.port}`);
             //llenar la base de datos con las ciudades
             new FillCitiesDatabase(geocodeService).execute(cities);
+            new FillPronosticosDatabase(geocodeService, pronoticoService).execute(cities);
         })
     }
 

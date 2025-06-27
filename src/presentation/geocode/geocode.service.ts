@@ -2,6 +2,7 @@
 import axios from 'axios';
 import { envs } from '../../config/envs';
 import { GeocodeEntity } from '../../domain/entities/geocode.entity';
+import { PrismaClient } from '@prisma/client';
 
 
 const https = require('https');
@@ -30,6 +31,25 @@ export class GeocodeService {
     }
   };
 
-  
-}
+  async getCityFromDatabase(city: string): Promise<GeocodeEntity | any> { {
+    const prisma = new PrismaClient();
+    try {
+      const ciudad = await prisma.ciudad.findFirst({
+        where: {
+          nombre: city,
+        },
+      });
+      
+      if (!ciudad) {
+        throw new Error(`City ${city} not found in database`);
+      }
+      return GeocodeEntity.fromObject({city: ciudad.nombre, latitude: ciudad.latitud, longitude: ciudad.longitud});
+    } catch (error) {
+      
+      return [];
+    }
+  }
 
+
+};
+}
