@@ -1,43 +1,36 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
 
-// datasource db {
-//   provider = "mysql"
-//   url      = env("MYSQL_URL")
-// }
 datasource db {
   provider = "postgresql"
   url      = env("POSTGRES_URL")
 }
 
-model Ciudad {
-  id          Int         @id @default(autoincrement())
-  nombre      String
-  latitud     Float
-  longitud    Float
-  previsiones Prevision[]
+model ciudad {
+  id        Int         @id @default(autoincrement())
+  nombre    String      @db.VarChar
+  latitud   Float
+  longitud  Float
+  prevision prevision[]
 }
 
-model CondicionMeteorologica {
-  id          Int         @id @default(autoincrement())
-  tipo        String
-  detalle     String
-  previsiones Prevision[]
+model condicion_meteorologica {
+  id        Int         @id @default(autoincrement())
+  tipo      String      @db.VarChar
+  detalle   String      @db.VarChar
+  prevision prevision[]
 }
 
-model Prevision {
-  id                Int      @id @default(autoincrement())
-  fecha             DateTime
-  temperaturaMinima Float
-  temperaturaMaxima Float
-  ciudadId          Int
-  condicionId       Int
+model prevision {
+  id                      Int                     @id @default(autoincrement())
+  fecha                   DateTime                @db.Timestamp(6)
+  temperaturaMinima       Float
+  temperaturaMaxima       Float
+  ciudadId                Int
+  condicionId             Int
+  ciudad                  ciudad                  @relation(fields: [ciudadId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  condicion_meteorologica condicion_meteorologica @relation(fields: [condicionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  ciudad    Ciudad                 @relation(fields: [ciudadId], references: [id])
-  condicion CondicionMeteorologica @relation(fields: [condicionId], references: [id])
-
-  @@unique([ciudadId, fecha])
+  @@unique([ciudadId, fecha], map: "uix_ciudad_fecha")
 }

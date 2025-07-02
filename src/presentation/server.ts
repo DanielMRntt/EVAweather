@@ -4,6 +4,8 @@ import { FillCitiesDatabase } from '../domain/use-cases/geocode/fill-database-ci
 import { GeocodeService } from './geocode/geocode.service';
 import { FillPronosticosDatabase } from '../domain/use-cases/geocode/fill-database-pronosticos';
 import { PronosticoService } from './geocode/pronostico.service';
+import { PrevisionService } from './services/prevision.service';
+import { PrevisionController } from './weather/controller';
 
 
 export interface Options {
@@ -42,15 +44,19 @@ export class Server {
         //*Public folder
         this.app.use(express.static(this.publicPath));
 
-        //routes
-        this.app.use(this.routes);
+        //* Controllers
+        const previsionService = new PrevisionService()
+        const controller = new PrevisionController(previsionService);
 
+        
 
+        this.app.post('/api/weatherPrev' , controller.webhookHandler);
         this.serverListener = this.app.listen(this.port, () => {
             console.log(`Server running on Port ${this.port}`);
-            //llenar la base de datos con las ciudades
-            new FillCitiesDatabase(geocodeService).execute(cities);
-            new FillPronosticosDatabase(geocodeService, pronoticoService).execute(cities);
+            //llenar la base de datos con las ciudades si no hay script de python
+            // new FillCitiesDatabase(geocodeService).execute(cities);
+            // new FillPronosticosDatabase(geocodeService, pronoticoService).execute(cities);
+
         })
     }
 
